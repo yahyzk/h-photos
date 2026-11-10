@@ -1,0 +1,134 @@
+media:
+  input: public/photos
+  output: /photos
+
+content:
+  - name: site
+    label: 网站内容
+    type: file
+    path: src/data/site.json
+    format: json
+    fields:
+      - name: pageTitle
+        label: 浏览器标签标题
+        type: string
+      - name: pageDescription
+        label: 搜索/分享时的描述
+        type: text
+
+      - name: nav
+        label: 顶部导航
+        type: object
+        fields:
+          - name: brand
+            label: 左上角的名字
+            type: string
+          - name: links
+            label: 导航链接
+            type: object
+            list: true
+            fields:
+              - name: label
+                label: 显示的文字
+                type: string
+              - name: href
+                label: 跳到哪里（如 #photos）
+                type: string
+
+      - name: hero
+        label: 首屏
+        type: object
+        fields:
+          - name: eyebrow
+            label: 标题上方小字
+            type: string
+          - name: title
+            label: 大标题（<br> 是换行）
+            type: string
+          - name: lead
+            label: 开头这段介绍
+            type: text
+          - name: buttonLabel
+            label: 按钮文字
+            type: string
+          - name: buttonHref
+            label: 按钮跳转
+            type: string
+          - name: cover
+            label: 封面照片
+            type: object
+            fields:
+              - name: src
+                label: 图片
+                type: image
+              - name: alt
+                label: 图片说明
+                type: string
+          - name: coverNote
+            label: 封面下方小字
+            type: string
+
+      - name: about
+        label: 关于
+        type: object
+        fields:
+          - name: eyebrow
+            label: 小标题
+            type: string
+          - name: heading
+            label: 大标题（<br> 是换行）
+            type: string
+          - name: paragraphs
+            label: 正文段落
+            type: text
+            list: true
+          - name: facts
+            label: 右侧小档案
+            type: object
+            list: true
+            fields:
+              - name: label
+                label: 左边（如 拍摄设备）
+                type: string
+              - name: value
+                label: 右边（如 一加 Ace 5）
+                type: string
+
+      - name: photos
+        label: 照片墙
+        type: object
+        fields:
+          - name: eyebrow
+            label: 小标题
+            type: string
+          - name: heading
+            label: 大标题
+            type: string
+          - name: items
+            label: 照片列表（可拖动排序、增删）
+            type: object
+            list:
+              collapsible:
+                collapsed: true
+                summary: "{caption}"
+            fields:
+              - name: src
+                label: 照片
+                type: image
+              - name: caption
+                label: 一句话说明
+                type: string
+
+      - name: footer
+        label: 页脚
+        type: object
+        fields:
+          - name: heading
+            label: 小标题
+            type: string
+          - name: email
+            label: 邮箱
+            type: string
+          - name: copyright
+            label: 署名
+            type: string
