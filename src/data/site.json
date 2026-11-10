@@ -1,0 +1,66 @@
+{
+  "pageTitle": "花 · 一些天空和路",
+  "pageDescription": "走路时拍下的天空、山路和傍晚。",
+  "nav": {
+    "brand": "花",
+    "links": [
+      { "label": "关于", "href": "#about" },
+      { "label": "照片", "href": "#photos" },
+      { "label": "联系", "href": "#contact" }
+    ]
+  },
+  "hero": {
+    "eyebrow": "Photos & Notes",
+    "title": "一些天空<br>和一些路",
+    "lead": "照片大多是在走路的时候拍的。天色变得最快的那二十分钟里，人会不自觉放慢，光刚好落在某个地方，就停下来按一下。这里放着这些时刻。",
+    "buttonLabel": "看看照片",
+    "buttonHref": "#photos",
+    "cover": {
+      "src": "/photos/cover.jpg",
+      "alt": "海面上的落日"
+    },
+    "coverNote": "海面上的落日。"
+  },
+  "about": {
+    "eyebrow": "关于",
+    "heading": "拍照是我<br>散步的方式",
+    "paragraphs": [
+      "比起专门出门拍照，我更喜欢在没什么事的时候走一段路。手机揣在兜里，看见好看的云、被光照亮的墙、刚刚下过雨的叶子，就拿出来按一张。",
+      "所以这里的照片谈不上作品，更像是一些停顿。天空占了很大一部分——它每天都在变，而且从不重复。"
+    ],
+    "facts": [
+      { "label": "拍摄设备", "value": "一加 Ace 5" },
+      { "label": "最常拍", "value": "天空、山、植物" },
+      { "label": "出没时间", "value": "傍晚" },
+      { "label": "这里放了", "value": "18 张" }
+    ]
+  },
+  "photos": {
+    "eyebrow": "照片",
+    "heading": "随手留下的几张",
+    "items": [
+      { "src": "/photos/01.jpg", "caption": "城市尽头的一次落日" },
+      { "src": "/photos/02.jpg", "caption": "海边的傍晚" },
+      { "src": "/photos/03.jpg", "caption": "窗台上的黄昏" },
+      { "src": "/photos/04.jpg", "caption": "退潮之后" },
+      { "src": "/photos/05.jpg", "caption": "田野上的晚霞" },
+      { "src": "/photos/06.jpg", "caption": "楼群后面的落日" },
+      { "src": "/photos/07.jpg", "caption": "山脊上的云在走" },
+      { "src": "/photos/08.jpg", "caption": "山谷一层一层褪成蓝" },
+      { "src": "/photos/09.jpg", "caption": "绿谷" },
+      { "src": "/photos/10.jpg", "caption": "红墙、翘角，和远处的山" },
+      { "src": "/photos/11.jpg", "caption": "山顶上的雕像和风" },
+      { "src": "/photos/12.jpg", "caption": "雨后，叶子上还挂着水" },
+      { "src": "/photos/13.jpg", "caption": "荷叶把光收在褶皱里" },
+      { "src": "/photos/14.jpg", "caption": "水退之后留下的纹路" },
+      { "src": "/photos/15.jpg", "caption": "暮色落下来，灯亮起来" },
+      { "src": "/photos/16.jpg", "caption": "夜里，山和灯" },
+      { "src": "/photos/17.jpg", "caption": "广场上的蓝天" }
+    ]
+  },
+  "footer": {
+    "heading": "想说点什么？",
+    "email": "2487496472@qq.com",
+    "copyright": "花"
+  }
+}

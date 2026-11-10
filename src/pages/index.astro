@@ -1,0 +1,134 @@
+---
+import Base from '../layouts/Base.astro';
+import site from '../data/site.json';
+---
+
+<Base title={site.pageTitle} description={site.pageDescription}>
+  <!-- ============ 顶部导航 ============ -->
+  <nav class="nav">
+    <div class="wrap">
+      <a class="brand" href="#top">{site.nav.brand}</a>
+      <ul>
+        {site.nav.links.map((link) => (
+          <li><a href={link.href}>{link.label}</a></li>
+        ))}
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ============ 首屏 ============ -->
+  <header class="hero" id="top">
+    <div class="wrap">
+      <p class="eyebrow">{site.hero.eyebrow}</p>
+      <h1 set:html={site.hero.title} />
+      <p class="lead">{site.hero.lead}</p>
+      <a class="btn" href={site.hero.buttonHref}>{site.hero.buttonLabel}</a>
+
+      <figure class="shot hero-shot reveal">
+        <img src={site.hero.cover.src} alt={site.hero.cover.alt} onerror="this.remove()" />
+      </figure>
+      <p class="photo-note">{site.hero.coverNote}</p>
+    </div>
+  </header>
+
+  <!-- ============ 关于 ============ -->
+  <section id="about">
+    <div class="wrap">
+      <div class="about">
+        <div class="reveal">
+          <p class="sec-title">{site.about.eyebrow}</p>
+          <h2 class="sec-head" set:html={site.about.heading} />
+          {site.about.paragraphs.map((text) => <p>{text}</p>)}
+        </div>
+        <div class="reveal">
+          <ul class="facts">
+            {site.about.facts.map((fact) => (
+              <li><span>{fact.label}</span><span>{fact.value}</span></li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 照片 ============ -->
+  <section id="photos" style="padding-top:0">
+    <div class="wrap">
+      <p class="sec-title">{site.photos.eyebrow}</p>
+      <h2 class="sec-head">{site.photos.heading}</h2>
+
+      <div class="grid">
+        {site.photos.items.map((photo) => (
+          <figure class="shot reveal">
+            <img
+              src={photo.src}
+              alt={photo.caption}
+              data-caption={photo.caption}
+              loading="lazy"
+              onerror="this.remove()"
+            />
+          </figure>
+        ))}
+      </div>
+
+      <p class="photo-note">
+        点任意一张可以放大看。照片放在 <code>public/photos/</code> 里，
+        想加照片就复制一行配置、改文件名；想少放就删掉那一行。
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ 页脚 ============ -->
+  <footer id="contact">
+    <div class="wrap">
+      <div class="foot">
+        <div>
+          <p style="margin:0 0 6px;color:var(--ink);font-weight:600">{site.footer.heading}</p>
+          <p style="margin:0">
+            写信给我：<a href={`mailto:${site.footer.email}`}>{site.footer.email}</a>
+          </p>
+        </div>
+        <p style="margin:0">© <span id="year">2026</span> {site.footer.copyright}</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============ 看大图的浮层 ============ -->
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <button type="button" id="lb-close" aria-label="关闭">×</button>
+    <img id="lb-img" src="" alt="" />
+    <p class="lb-cap" id="lb-cap"></p>
+  </div>
+
+  <script>
+    const lb = document.getElementById('lightbox')!;
+    const lbImg = document.getElementById('lb-img') as HTMLImageElement;
+    const lbCap = document.getElementById('lb-cap')!;
+    const lbClose = document.getElementById('lb-close')!;
+
+    const open = (src: string, caption: string) => {
+      lbImg.src = src;
+      lbImg.alt = caption;
+      lbCap.textContent = caption;
+      lb.classList.add('open');
+      document.body.classList.add('lb-open');
+    };
+
+    const close = () => {
+      lb.classList.remove('open');
+      document.body.classList.remove('lb-open');
+    };
+
+    document.querySelectorAll<HTMLImageElement>('.grid img').forEach((img) => {
+      img.addEventListener('click', () => open(img.src, img.dataset.caption || ''));
+    });
+
+    lbClose.addEventListener('click', close);
+    lb.addEventListener('click', (e) => {
+      if (e.target === lb) close();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') close();
+    });
+  </script>
+</Base>
