@@ -1,0 +1,8 @@
+{
+  // Cloudflare Worker 配置：把打包出来的 dist 当作静态资源发布
+  "name": "h-photos",
+  "compatibility_date": "2025-01-01",
+  "assets": {
+    "directory": "./dist"
+  }
+}
