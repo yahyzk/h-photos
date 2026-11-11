@@ -278,70 +278,121 @@ footer a{ color:var(--bronze); text-decoration:none; border-bottom:1px solid cur
   .hits{ font-size:10px; letter-spacing:.1em; padding:8px 16px 8px 13px; gap:7px; }
 }
 
-/* ---------- 黑胶唱片 ---------- */
+/* ---------- 黑胶唱片：唱针 + 进度环 ---------- */
 .record{
   position:fixed;
-  right:max(18px, env(safe-area-inset-right, 18px));
+  right:max(20px, env(safe-area-inset-right, 20px));
   bottom:max(18px, env(safe-area-inset-bottom, 18px));
   z-index:60;
-  display:flex; align-items:center; gap:12px;
+  width:88px; height:88px;
 }
 .record-title{
-  order:-1;
+  position:absolute;
+  right:calc(100% + 14px);
+  top:50%;
+  transform:translateY(-50%) translateX(8px);
   font-size:10.5px; letter-spacing:.16em; text-transform:uppercase;
   color:#2c2822;
-  padding:7px 14px; border-radius:999px;
+  padding:7px 14px;
+  border-radius:999px;
   background:rgba(255,255,255,.45);
   border:1px solid rgba(255,255,255,.6);
   -webkit-backdrop-filter:blur(18px) saturate(180%);
   backdrop-filter:blur(18px) saturate(180%);
   box-shadow:0 8px 24px rgba(20,18,15,.14);
-  opacity:0; transform:translateX(8px);
+  opacity:0;
   transition:opacity .25s ease, transform .25s ease;
   pointer-events:none;
   white-space:nowrap;
 }
 .record:hover .record-title,
-.record.playing .record-title{ opacity:1; transform:none; }
+.record.playing .record-title{ opacity:1; transform:translateY(-50%); }
 
+/* 进度环 */
+.ring{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  transform:rotate(-90deg);
+  pointer-events:none;
+}
+.ring-bg{ fill:none; stroke:rgba(255,255,255,.30); stroke-width:1.5; }
+.ring-fg{
+  fill:none; stroke:#c9a37c; stroke-width:1.5; stroke-linecap:round;
+  stroke-dasharray:295.31;
+  stroke-dashoffset:295.31;
+  transition:stroke-dashoffset .25s linear;
+}
+
+/* 唱片本体 */
 .disc{
-  position:relative;
-  width:62px; height:62px;
-  padding:0; border:0; cursor:pointer;
+  position:absolute; inset:0;
+  padding:0; border:0; background:none; cursor:pointer;
+  border-radius:50%;
+}
+.disc-face{
+  position:absolute; inset:7px;
   border-radius:50%;
   background:
-    linear-gradient(125deg, rgba(255,255,255,.16), rgba(255,255,255,0) 42%),
+    linear-gradient(128deg, rgba(255,255,255,.18), rgba(255,255,255,0) 46%),
     repeating-radial-gradient(circle at 50% 50%,
       #1b1a22 0 2px, #262430 2px 3.5px, #14131a 3.5px 5px);
   box-shadow:
     0 10px 30px rgba(0,0,0,.35),
     inset 0 0 0 1px rgba(255,255,255,.07);
-  animation:spin 7s linear infinite;
+  animation:spin 8s linear infinite;
   animation-play-state:paused;
-  transition:transform .2s ease;
 }
-.disc::before{
+.disc-face::before{
   content:"";
-  position:absolute; inset:35%;
+  position:absolute; inset:31%;
   border-radius:50%;
-  background:radial-gradient(circle at 40% 35%, #e0bc90, #c49a6b);
-  box-shadow:inset 0 0 0 1px rgba(0,0,0,.18);
+  background:radial-gradient(circle at 40% 35%, #e2c096, #c49a6b);
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.16);
 }
 .disc-hole{
-  position:absolute; inset:47.5%;
+  position:absolute; inset:47%;
   border-radius:50%;
   background:#121116;
 }
-.disc:hover{ transform:scale(1.05); }
-.record.playing .disc{ animation-play-state:running; }
+.disc:hover .disc-face{ box-shadow:0 12px 34px rgba(0,0,0,.42), inset 0 0 0 1px rgba(255,255,255,.1); }
+.record.playing .disc-face{ animation-play-state:running; }
+
+/* 唱针 */
+.tonearm{
+  position:absolute;
+  top:-13px; right:-7px;
+  width:5px; height:54px;
+  border-radius:3px;
+  background:linear-gradient(180deg,#ded6cb,#9a9286 58%,#6e675c);
+  transform-origin:top center;
+  transform:rotate(-16deg);
+  transition:transform .8s cubic-bezier(.34,1.1,.4,1);
+  box-shadow:0 3px 8px rgba(0,0,0,.22);
+  pointer-events:none;
+}
+.tonearm::before{
+  content:"";
+  position:absolute; top:-8px; left:50%; transform:translateX(-50%);
+  width:15px; height:15px; border-radius:50%;
+  background:radial-gradient(circle at 38% 32%, #f1e9de, #8d8578);
+  box-shadow:0 1px 4px rgba(0,0,0,.3);
+}
+.tonearm::after{
+  content:"";
+  position:absolute; bottom:-7px; left:50%; transform:translateX(-50%);
+  width:12px; height:10px; border-radius:2px;
+  background:#2a2723;
+}
+.record.playing .tonearm{ transform:rotate(13deg); }
 
 @keyframes spin{ from{ transform:rotate(0deg); } to{ transform:rotate(360deg); } }
 
 @media (prefers-reduced-motion:reduce){
-  .disc{ animation:none !important; }
+  .disc-face{ animation:none !important; }
 }
 @media (max-width:560px){
-  .disc{ width:50px; height:50px; }
+  .record{ width:66px; height:66px; }
+  .tonearm{ height:40px; top:-10px; }
   .record-title{ display:none; }
 }
 .foot{

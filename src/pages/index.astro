@@ -94,14 +94,20 @@ import site from '../data/site.json';
     <span><b id="busuanzi_value_site_uv">·</b> 位访客</span>
   </div>
 
-  <!-- ============ 黑胶唱片：点一下播放/暂停 ============ -->
+  <!-- ============ 黑胶唱片：点一下播放/暂停（唱针 + 进度环） ============ -->
   {site.music?.enabled && (
     <div class="record" id="record">
       <audio id="bgm" src={site.music.src} loop preload="none"></audio>
       <span class="record-title">{site.music.title}</span>
       <button class="disc" id="disc" type="button" aria-label="播放背景音乐">
+        <svg class="ring" viewBox="0 0 100 100" aria-hidden="true">
+          <circle class="ring-bg" cx="50" cy="50" r="47"></circle>
+          <circle class="ring-fg" id="ring" cx="50" cy="50" r="47"></circle>
+        </svg>
+        <span class="disc-face"></span>
         <span class="disc-hole"></span>
       </button>
+      <span class="tonearm" aria-hidden="true"></span>
     </div>
   )}
 
@@ -145,30 +151,44 @@ import site from '../data/site.json';
   </script>
 
   <script>
-    // 黑胶唱片：点一下播放 / 再点暂停
+    // 黑胶唱片：点一下播放 / 再点暂停，外圈进度环跟着走
     const record = document.getElementById('record');
     const disc = document.getElementById('disc') as HTMLButtonElement | null;
     const bgm = document.getElementById('bgm') as HTMLAudioElement | null;
+    const ring = document.getElementById('ring') as SVGCircleElement | null;
 
     if (record && disc && bgm) {
+      const CIRC = 2 * Math.PI * 47;
+
+      const paintRing = () => {
+        if (!ring) return;
+        const p = bgm.duration > 0 ? bgm.currentTime / bgm.duration : 0;
+        ring.style.strokeDashoffset = String(CIRC * (1 - p));
+      };
+
+      const setPlaying = (on: boolean) => {
+        record.classList.toggle('playing', on);
+        disc.setAttribute('aria-label', on ? '暂停背景音乐' : '播放背景音乐');
+      };
+
       const toggle = async () => {
         if (bgm.paused) {
           try {
             await bgm.play();
-            record.classList.add('playing');
-            disc.setAttribute('aria-label', '暂停背景音乐');
+            setPlaying(true);
           } catch {
             const t = record.querySelector('.record-title');
             if (t) t.textContent = '音乐加载失败';
           }
         } else {
           bgm.pause();
-          record.classList.remove('playing');
-          disc.setAttribute('aria-label', '播放背景音乐');
+          setPlaying(false);
         }
       };
 
       disc.addEventListener('click', toggle);
+      bgm.addEventListener('timeupdate', paintRing);
+      bgm.addEventListener('loadedmetadata', paintRing);
       bgm.addEventListener('error', () => {
         const t = record.querySelector('.record-title');
         if (t) t.textContent = '还没有音乐文件';
