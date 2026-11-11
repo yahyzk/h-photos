@@ -261,13 +261,16 @@ import site from '../data/site.json';
       const max = Math.max(...times);
       const span = max - min || 1;
       const ratio = (t: number) => (t - min) / span;
+      // 照片按时间倒序排时，时间轴顶端给最新的那张
+      const descending = times[0] > times[times.length - 1];
+      const posOf = (t: number) => (descending ? 1 - ratio(t) : ratio(t)) * 100;
 
       const fmt = (iso: string) => iso.slice(0, 7).replace('-', '.');
 
       figs.forEach((f, i) => {
         const tick = document.createElement('span');
         tick.className = 'tl-tick';
-        tick.style.top = `${ratio(times[i]) * 100}%`;
+        tick.style.top = `${posOf(times[i])}%`;
         tick.title = f.dataset.date || '';
         tick.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -280,7 +283,7 @@ import site from '../data/site.json';
       const setActive = (i: number) => {
         if (i < 0 || i === active) return;
         active = i;
-        const top = Math.min(98, Math.max(2, ratio(times[i]) * 100));
+        const top = Math.min(98, Math.max(2, posOf(times[i])));
         knob.style.top = `${top}%`;
         dateEl.textContent = fmt(figs[i].dataset.date || '');
       };
@@ -291,7 +294,7 @@ import site from '../data/site.json';
         let best = 0;
         let bestD = Infinity;
         times.forEach((t, i) => {
-          const d = Math.abs(ratio(t) - f);
+          const d = Math.abs(posOf(t) / 100 - f);
           if (d < bestD) {
             bestD = d;
             best = i;

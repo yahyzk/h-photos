@@ -38,33 +38,50 @@ const { title, description = '' } = Astro.props;
         var box = document.getElementById('hits');
         if (!box) return;
 
+        function valueOf(id) {
+          var el = document.getElementById(id);
+          if (!el) return '';
+          return (el.textContent || '').trim();
+        }
+
+        function hasNumber() {
+          return /^[\d,]+$/.test(valueOf('busuanzi_value_site_pv'));
+        }
+
         function tidy() {
-          var ok = false;
           ['busuanzi_value_site_pv', 'busuanzi_value_site_uv'].forEach(function (id) {
             var el = document.getElementById(id);
             if (!el) return;
             var v = (el.textContent || '').trim();
-            if (/^\d+$/.test(v)) {
-              el.textContent = Number(v).toLocaleString('en-US');
-              ok = true;
-            }
+            if (/^\d+$/.test(v)) el.textContent = Number(v).toLocaleString('en-US');
           });
-          return ok;
         }
 
-        // 数字一到就给千分位
+        var retried = false;
         var ticks = 0;
         var timer = setInterval(function () {
           ticks++;
-          if (tidy() || ticks > 20) clearInterval(timer);
+          if (hasNumber()) {
+            tidy();
+            box.style.display = 'flex';
+            clearInterval(timer);
+            return;
+          }
+          // 8 秒还没数，重新拉一次脚本（网络偶尔会丢）
+          if (ticks === 16 && !retried) {
+            retried = true;
+            var s = document.createElement('script');
+            s.src = 'https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js?t=' + Date.now();
+            s.async = true;
+            document.head.appendChild(s);
+          }
+          if (ticks > 44) clearInterval(timer);
         }, 500);
 
-        // 6 秒还没数字，说明服务不可用，直接隐藏，别留个占位符
+        // 22 秒仍然没有数字，才隐藏，避免长时间挂个「·」
         setTimeout(function () {
-          var pv = document.getElementById('busuanzi_value_site_pv');
-          var v = pv ? (pv.textContent || '').trim() : '';
-          if (!/^[\d,]+$/.test(v)) box.style.display = 'none';
-        }, 6000);
+          if (!hasNumber()) box.style.display = 'none';
+        }, 22000);
       })();
     </script>
 
