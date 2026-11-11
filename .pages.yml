@@ -1,3 +1,6 @@
+# Pages CMS 配置：在 pagescms.org 登录后，这个文件决定你能在网页里改什么。
+# 改这里的结构要小心，改 site.json 里的文字则随便改。
+
 media:
   input: public/photos
   output: /photos
@@ -105,7 +108,7 @@ content:
             label: 大标题
             type: string
           - name: items
-            label: 照片列表（可拖动排序、增删）
+            label: 照片列表（可拖动排序 / 增删）
             type: object
             list:
               collapsible:
