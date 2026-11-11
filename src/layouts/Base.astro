@@ -24,6 +24,18 @@ const { title, description = '' } = Astro.props;
   <body>
     <slot />
 
+    <!-- 访问次数：不蒜子（外部免费计数服务），加载不出来时自动隐藏 -->
+    <script is:inline async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <script is:inline>
+      setTimeout(function () {
+        var el = document.getElementById('busuanzi_value_site_pv');
+        var box = document.querySelector('.hits');
+        if (!el || !box) return;
+        var v = (el.textContent || '').trim();
+        if (!/^\d+$/.test(v)) box.style.display = 'none';
+      }, 6000);
+    </script>
+
     <script>
       // 年份自动更新
       const yearEl = document.getElementById('year');
