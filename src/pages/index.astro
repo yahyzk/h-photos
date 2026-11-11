@@ -16,19 +16,17 @@ import site from '../data/site.json';
     </div>
   </nav>
 
-  <!-- ============ 首屏 ============ -->
+  <!-- ============ 首屏：全屏大图，标题压在照片上 ============ -->
   <header class="hero" id="top">
-    <div class="wrap">
+    <img class="hero-bg" src={site.hero.cover.src} alt={site.hero.cover.alt} onerror="this.remove()" />
+    <div class="hero-scrim"></div>
+    <div class="wrap hero-inner">
       <p class="eyebrow">{site.hero.eyebrow}</p>
       <h1 set:html={site.hero.title} />
       <p class="lead">{site.hero.lead}</p>
       <a class="btn" href={site.hero.buttonHref}>{site.hero.buttonLabel}</a>
-
-      <figure class="shot hero-shot reveal">
-        <img src={site.hero.cover.src} alt={site.hero.cover.alt} onerror="this.remove()" />
-      </figure>
-      <p class="photo-note">{site.hero.coverNote}</p>
     </div>
+    <p class="hero-credit">{site.hero.coverNote}</p>
   </header>
 
   <!-- ============ 关于 ============ -->

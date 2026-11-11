@@ -29,6 +29,14 @@ const { title, description = '' } = Astro.props;
       const yearEl = document.getElementById('year');
       if (yearEl) yearEl.textContent = String(new Date().getFullYear());
 
+      // 导航：滑过首屏后从透明变实底
+      const nav = document.querySelector('.nav');
+      if (nav) {
+        const onScroll = () => nav.classList.toggle('solid', window.scrollY > 80);
+        onScroll();
+        window.addEventListener('scroll', onScroll, { passive: true });
+      }
+
       // 滚动到哪儿，哪儿就淡入
       const items = document.querySelectorAll<HTMLElement>('.reveal');
       if ('IntersectionObserver' in window) {
