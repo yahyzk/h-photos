@@ -135,3 +135,18 @@ content:
           - name: copyright
             label: 署名
             type: string
+
+      - name: music
+        label: 黑胶唱片
+        type: object
+        fields:
+          - name: enabled
+            label: 显示唱片
+            type: boolean
+          - name: title
+            label: 唱片名（鼠标悬停时显示）
+            type: string
+          - name: src
+            label: 音乐文件路径
+            type: string
+            description: 例如 /music/bgm.wav；换音乐就替换 public/music 里的文件

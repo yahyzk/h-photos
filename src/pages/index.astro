@@ -94,6 +94,17 @@ import site from '../data/site.json';
     <span><b id="busuanzi_value_site_uv">·</b> 位访客</span>
   </div>
 
+  <!-- ============ 黑胶唱片：点一下播放/暂停 ============ -->
+  {site.music?.enabled && (
+    <div class="record" id="record">
+      <audio id="bgm" src={site.music.src} loop preload="none"></audio>
+      <span class="record-title">{site.music.title}</span>
+      <button class="disc" id="disc" type="button" aria-label="播放背景音乐">
+        <span class="disc-hole"></span>
+      </button>
+    </div>
+  )}
+
   <!-- ============ 看大图的浮层 ============ -->
   <div class="lightbox" id="lightbox" aria-hidden="true">
     <button type="button" id="lb-close" aria-label="关闭">×</button>
@@ -131,5 +142,37 @@ import site from '../data/site.json';
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') close();
     });
+  </script>
+
+  <script>
+    // 黑胶唱片：点一下播放 / 再点暂停
+    const record = document.getElementById('record');
+    const disc = document.getElementById('disc') as HTMLButtonElement | null;
+    const bgm = document.getElementById('bgm') as HTMLAudioElement | null;
+
+    if (record && disc && bgm) {
+      const toggle = async () => {
+        if (bgm.paused) {
+          try {
+            await bgm.play();
+            record.classList.add('playing');
+            disc.setAttribute('aria-label', '暂停背景音乐');
+          } catch {
+            const t = record.querySelector('.record-title');
+            if (t) t.textContent = '音乐加载失败';
+          }
+        } else {
+          bgm.pause();
+          record.classList.remove('playing');
+          disc.setAttribute('aria-label', '播放背景音乐');
+        }
+      };
+
+      disc.addEventListener('click', toggle);
+      bgm.addEventListener('error', () => {
+        const t = record.querySelector('.record-title');
+        if (t) t.textContent = '还没有音乐文件';
+      });
+    }
   </script>
 </Base>

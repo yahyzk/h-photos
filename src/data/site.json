@@ -62,5 +62,10 @@
     "heading": "想说点什么？",
     "email": "2487496472@qq.com",
     "copyright": "花"
+  },
+  "music": {
+    "enabled": true,
+    "src": "/music/bgm.wav",
+    "title": "傍晚的风"
   }
 }
