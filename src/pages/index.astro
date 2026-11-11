@@ -63,7 +63,10 @@ import site from '../data/site.json';
               alt={photo.caption || photo.date}
               data-caption={photo.caption}
               data-date={photo.date}
+              width={photo.w}
+              height={photo.h}
               loading="lazy"
+              decoding="async"
               onerror="this.remove()"
             />
           </figure>
@@ -303,7 +306,8 @@ import site from '../data/site.json';
         return best;
       };
 
-      const syncFromScroll = () => {
+      // 只找「最靠近视口中线」的那张；加一点回差，避免两张之间来回抖
+      const nearestIndex = () => {
         const mid = window.innerHeight * 0.42;
         let best = 0;
         let bestD = Infinity;
@@ -315,7 +319,28 @@ import site from '../data/site.json';
             best = i;
           }
         });
-        setActive(best);
+        return { best, bestD };
+      };
+
+      let rafPending = false;
+      const syncFromScroll = () => {
+        if (rafPending) return;
+        rafPending = true;
+        requestAnimationFrame(() => {
+          rafPending = false;
+          if (dragging) return;
+          const { best } = nearestIndex();
+          if (active >= 0 && best !== active) {
+            // 新目标必须明显更近才切换，防止临界处反复横跳
+            const cur = figs[active].getBoundingClientRect();
+            const mid = window.innerHeight * 0.42;
+            const dCur = Math.abs(cur.top + cur.height / 2 - mid);
+            const cand = figs[best].getBoundingClientRect();
+            const dNew = Math.abs(cand.top + cand.height / 2 - mid);
+            if (dNew > dCur - 40) return;
+          }
+          setActive(best);
+        });
       };
 
       window.addEventListener('scroll', syncFromScroll, { passive: true });
@@ -330,6 +355,7 @@ import site from '../data/site.json';
 
       knob.addEventListener('pointerdown', (e) => {
         dragging = true;
+        track.classList.add('dragging');
         knob.setPointerCapture?.(e.pointerId);
         jump(e.clientY);
         e.preventDefault();
@@ -337,6 +363,7 @@ import site from '../data/site.json';
       track.addEventListener('pointerdown', (e) => {
         if (e.target === knob) return;
         dragging = true;
+        track.classList.add('dragging');
         jump(e.clientY);
         e.preventDefault();
       });
@@ -345,6 +372,7 @@ import site from '../data/site.json';
       });
       window.addEventListener('pointerup', () => {
         dragging = false;
+        track.classList.remove('dragging');
       });
       window.addEventListener('pointercancel', () => {
         dragging = false;

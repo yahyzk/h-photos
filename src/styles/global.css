@@ -512,6 +512,7 @@ footer a{ color:var(--bronze); text-decoration:none; border-bottom:1px solid cur
   transition:top .18s ease;
 }
 .tl-knob:active{ cursor:grabbing; }
+.tl-track.dragging .tl-knob{ transition:none; }
 .tl-date{
   position:absolute;
   right:calc(100% + 12px);
