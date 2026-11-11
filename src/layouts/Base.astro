@@ -34,13 +34,38 @@ const { title, description = '' } = Astro.props;
     <!-- 访问次数：不蒜子（外部免费计数服务），加载不出来时自动隐藏 -->
     <script is:inline async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
     <script is:inline>
-      setTimeout(function () {
-        var el = document.getElementById('busuanzi_value_site_pv');
-        var box = document.querySelector('.hits');
-        if (!el || !box) return;
-        var v = (el.textContent || '').trim();
-        if (!/^\d+$/.test(v)) box.style.display = 'none';
-      }, 6000);
+      (function () {
+        var box = document.getElementById('hits');
+        if (!box) return;
+
+        function tidy() {
+          var ok = false;
+          ['busuanzi_value_site_pv', 'busuanzi_value_site_uv'].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            var v = (el.textContent || '').trim();
+            if (/^\d+$/.test(v)) {
+              el.textContent = Number(v).toLocaleString('en-US');
+              ok = true;
+            }
+          });
+          return ok;
+        }
+
+        // 数字一到就给千分位
+        var ticks = 0;
+        var timer = setInterval(function () {
+          ticks++;
+          if (tidy() || ticks > 20) clearInterval(timer);
+        }, 500);
+
+        // 6 秒还没数字，说明服务不可用，直接隐藏，别留个占位符
+        setTimeout(function () {
+          var pv = document.getElementById('busuanzi_value_site_pv');
+          var v = pv ? (pv.textContent || '').trim() : '';
+          if (!/^[\d,]+$/.test(v)) box.style.display = 'none';
+        }, 6000);
+      })();
     </script>
 
     <script>

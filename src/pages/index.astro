@@ -80,14 +80,19 @@ import site from '../data/site.json';
           <p style="margin:0">
             写信给我：<a href={`mailto:${site.footer.email}`}>{site.footer.email}</a>
           </p>
-          <p class="hits">
-            已被访问 <span id="busuanzi_value_site_pv">·</span> 次
-          </p>
         </div>
         <p style="margin:0">© <span id="year">2026</span> {site.footer.copyright}</p>
       </div>
     </div>
   </footer>
+
+  <!-- ============ 底部悬浮计数（液态玻璃） ============ -->
+  <div class="hits" id="hits">
+    <span class="hits-dot"></span>
+    <span>已被访问 <b id="busuanzi_value_site_pv">·</b> 次</span>
+    <span class="hits-sep">·</span>
+    <span><b id="busuanzi_value_site_uv">·</b> 位访客</span>
+  </div>
 
   <!-- ============ 看大图的浮层 ============ -->
   <div class="lightbox" id="lightbox" aria-hidden="true">
