@@ -250,8 +250,9 @@ import site from '../data/site.json';
     }
   </script>
 
+
   <script>
-    // 右侧时间轴：刻度 = 每张照片，拖动 = 跳到那天
+    // 右侧时间轴：连续进度，跟滚动位置一一对应（不吸附照片，所以不会抖）
     const track = document.getElementById('tl-track') as HTMLDivElement | null;
     const ticks = document.getElementById('tl-ticks') as HTMLDivElement | null;
     const knob = document.getElementById('tl-knob') as HTMLButtonElement | null;
@@ -259,56 +260,43 @@ import site from '../data/site.json';
     const figs = Array.from(document.querySelectorAll<HTMLElement>('.grid .shot'));
 
     if (track && ticks && knob && dateEl && figs.length > 1) {
-      const times = figs.map((f) => new Date(`${f.dataset.date}T12:00:00`).getTime());
-      const min = Math.min(...times);
-      const max = Math.max(...times);
-      const span = max - min || 1;
-      const ratio = (t: number) => (t - min) / span;
-      // 照片按时间倒序排时，时间轴顶端给最新的那张
-      const descending = times[0] > times[times.length - 1];
-      const posOf = (t: number) => (descending ? 1 - ratio(t) : ratio(t)) * 100;
-
       const fmt = (iso: string) => iso.slice(0, 7).replace('-', '.');
+      const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
+      const viewCenter = () => window.innerHeight * 0.5;
 
-      figs.forEach((f, i) => {
-        const tick = document.createElement('span');
-        tick.className = 'tl-tick';
-        tick.style.top = `${posOf(times[i])}%`;
-        tick.title = f.dataset.date || '';
-        tick.addEventListener('click', (e) => {
-          e.stopPropagation();
-          f.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        });
-        ticks.appendChild(tick);
-      });
-
-      let active = -1;
-      const setActive = (i: number) => {
-        if (i < 0 || i === active) return;
-        active = i;
-        const top = Math.min(98, Math.max(2, posOf(times[i])));
-        knob.style.top = `${top}%`;
-        dateEl.textContent = fmt(figs[i].dataset.date || '');
+      // 照片区域可滚动的范围：从第一张中线到视口中线，到最后一张中线
+      const range = () => {
+        const first = figs[0].getBoundingClientRect();
+        const last = figs[figs.length - 1].getBoundingClientRect();
+        const startY = window.scrollY + first.top + first.height / 2 - viewCenter();
+        const endY = window.scrollY + last.top + last.height / 2 - viewCenter();
+        return { startY, endY, span: Math.max(1, endY - startY) };
       };
 
-      const nearestToY = (clientY: number) => {
-        const r = track.getBoundingClientRect();
-        const f = Math.min(1, Math.max(0, (clientY - r.top) / r.height));
-        let best = 0;
-        let bestD = Infinity;
-        times.forEach((t, i) => {
-          const d = Math.abs(posOf(t) / 100 - f);
-          if (d < bestD) {
-            bestD = d;
-            best = i;
-          }
+      let rng = range();
+      const refresh = () => {
+        rng = range();
+        // 刻度按各张照片在滚动条上的实际位置摆放
+        ticks.innerHTML = '';
+        figs.forEach((f) => {
+          const r = f.getBoundingClientRect();
+          const y = window.scrollY + r.top + r.height / 2 - viewCenter();
+          const p = clamp01((y - rng.startY) / rng.span);
+          const tick = document.createElement('span');
+          tick.className = 'tl-tick';
+          tick.style.top = `${p * 100}%`;
+          tick.title = f.dataset.date || '';
+          tick.addEventListener('click', (e) => {
+            e.stopPropagation();
+            window.scrollTo({ top: y, behavior: 'smooth' });
+          });
+          ticks.appendChild(tick);
         });
-        return best;
       };
 
-      // 只找「最靠近视口中线」的那张；加一点回差，避免两张之间来回抖
-      const nearestIndex = () => {
-        const mid = window.innerHeight * 0.42;
+      // 当前滚到哪张（只用来改日期文字，不影响抓手位置）
+      const nearestLabel = () => {
+        const mid = viewCenter();
         let best = 0;
         let bestD = Infinity;
         figs.forEach((f, i) => {
@@ -319,64 +307,74 @@ import site from '../data/site.json';
             best = i;
           }
         });
-        return { best, bestD };
+        return best;
       };
 
-      let rafPending = false;
-      const syncFromScroll = () => {
-        if (rafPending) return;
-        rafPending = true;
-        requestAnimationFrame(() => {
-          rafPending = false;
+      let lastLabel = -1;
+      let raf = 0;
+      const onScroll = () => {
+        if (raf) return;
+        raf = requestAnimationFrame(() => {
+          raf = 0;
           if (dragging) return;
-          const { best } = nearestIndex();
-          if (active >= 0 && best !== active) {
-            // 新目标必须明显更近才切换，防止临界处反复横跳
-            const cur = figs[active].getBoundingClientRect();
-            const mid = window.innerHeight * 0.42;
-            const dCur = Math.abs(cur.top + cur.height / 2 - mid);
-            const cand = figs[best].getBoundingClientRect();
-            const dNew = Math.abs(cand.top + cand.height / 2 - mid);
-            if (dNew > dCur - 40) return;
+          const p = clamp01((window.scrollY - rng.startY) / rng.span);
+          knob.style.top = `${p * 100}%`;
+          const idx = nearestLabel();
+          if (idx !== lastLabel) {
+            lastLabel = idx;
+            dateEl.textContent = fmt(figs[idx].dataset.date || '');
           }
-          setActive(best);
         });
       };
 
-      window.addEventListener('scroll', syncFromScroll, { passive: true });
-      syncFromScroll();
-
       let dragging = false;
-      const jump = (clientY: number) => {
-        const i = nearestToY(clientY);
-        figs[i].scrollIntoView({ behavior: 'auto', block: 'center' });
-        setActive(i);
+      const seek = (clientY: number) => {
+        const rect = track.getBoundingClientRect();
+        const p = clamp01((clientY - rect.top) / rect.height);
+        window.scrollTo({ top: rng.startY + p * rng.span, behavior: 'auto' });
+        knob.style.top = `${p * 100}%`;
       };
+
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', () => {
+        refresh();
+        onScroll();
+      });
 
       knob.addEventListener('pointerdown', (e) => {
         dragging = true;
         track.classList.add('dragging');
         knob.setPointerCapture?.(e.pointerId);
-        jump(e.clientY);
+        seek(e.clientY);
         e.preventDefault();
       });
       track.addEventListener('pointerdown', (e) => {
         if (e.target === knob) return;
         dragging = true;
         track.classList.add('dragging');
-        jump(e.clientY);
+        seek(e.clientY);
         e.preventDefault();
       });
       window.addEventListener('pointermove', (e) => {
-        if (dragging) jump(e.clientY);
+        if (dragging) seek(e.clientY);
       });
-      window.addEventListener('pointerup', () => {
+      const stop = () => {
+        if (!dragging) return;
         dragging = false;
         track.classList.remove('dragging');
+        refresh();
+        onScroll();
+      };
+      window.addEventListener('pointerup', stop);
+      window.addEventListener('pointercancel', stop);
+
+      // 图片全部加载完，位置会变一次，重新算刻度
+      window.addEventListener('load', () => {
+        refresh();
+        onScroll();
       });
-      window.addEventListener('pointercancel', () => {
-        dragging = false;
-      });
+      refresh();
+      onScroll();
     }
   </script>
 </Base>
