@@ -56,8 +56,8 @@ import site from '../data/site.json';
       <h2 class="sec-head">{site.photos.heading}</h2>
 
       <div class="grid">
-        {site.photos.items.map((photo) => (
-          <figure class="shot reveal">
+        {site.photos.items.map((photo, i) => (
+          <figure class="shot reveal" data-date={photo.date} id={`photo-${i}`}>
             <img
               src={photo.src}
               alt={photo.caption}
@@ -70,6 +70,16 @@ import site from '../data/site.json';
       </div>
     </div>
   </section>
+
+  <!-- ============ 右侧时间轴（液态玻璃，可拖动） ============ -->
+  <div class="timeline" id="timeline">
+    <div class="tl-track" id="tl-track">
+      <div class="tl-ticks" id="tl-ticks"></div>
+      <button class="tl-knob" id="tl-knob" type="button" aria-label="拖动查看拍摄时间">
+        <span class="tl-date" id="tl-date"></span>
+      </button>
+    </div>
+  </div>
 
   <!-- ============ 页脚 ============ -->
   <footer id="contact">
@@ -229,6 +239,108 @@ import site from '../data/site.json';
           if (t) t.textContent = '还没有音乐文件';
         });
       }
+    }
+  </script>
+
+  <script>
+    // 右侧时间轴：刻度 = 每张照片，拖动 = 跳到那天
+    const track = document.getElementById('tl-track') as HTMLDivElement | null;
+    const ticks = document.getElementById('tl-ticks') as HTMLDivElement | null;
+    const knob = document.getElementById('tl-knob') as HTMLButtonElement | null;
+    const dateEl = document.getElementById('tl-date') as HTMLSpanElement | null;
+    const figs = Array.from(document.querySelectorAll<HTMLElement>('.grid .shot'));
+
+    if (track && ticks && knob && dateEl && figs.length > 1) {
+      const times = figs.map((f) => new Date(`${f.dataset.date}T12:00:00`).getTime());
+      const min = Math.min(...times);
+      const max = Math.max(...times);
+      const span = max - min || 1;
+      const ratio = (t: number) => (t - min) / span;
+
+      const fmt = (iso: string) => iso.slice(0, 7).replace('-', '.');
+
+      figs.forEach((f, i) => {
+        const tick = document.createElement('span');
+        tick.className = 'tl-tick';
+        tick.style.top = `${ratio(times[i]) * 100}%`;
+        tick.title = f.dataset.date || '';
+        tick.addEventListener('click', (e) => {
+          e.stopPropagation();
+          f.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+        ticks.appendChild(tick);
+      });
+
+      let active = -1;
+      const setActive = (i: number) => {
+        if (i < 0 || i === active) return;
+        active = i;
+        const top = Math.min(98, Math.max(2, ratio(times[i]) * 100));
+        knob.style.top = `${top}%`;
+        dateEl.textContent = fmt(figs[i].dataset.date || '');
+      };
+
+      const nearestToY = (clientY: number) => {
+        const r = track.getBoundingClientRect();
+        const f = Math.min(1, Math.max(0, (clientY - r.top) / r.height));
+        let best = 0;
+        let bestD = Infinity;
+        times.forEach((t, i) => {
+          const d = Math.abs(ratio(t) - f);
+          if (d < bestD) {
+            bestD = d;
+            best = i;
+          }
+        });
+        return best;
+      };
+
+      const syncFromScroll = () => {
+        const mid = window.innerHeight * 0.42;
+        let best = 0;
+        let bestD = Infinity;
+        figs.forEach((f, i) => {
+          const r = f.getBoundingClientRect();
+          const d = Math.abs(r.top + r.height / 2 - mid);
+          if (d < bestD) {
+            bestD = d;
+            best = i;
+          }
+        });
+        setActive(best);
+      };
+
+      window.addEventListener('scroll', syncFromScroll, { passive: true });
+      syncFromScroll();
+
+      let dragging = false;
+      const jump = (clientY: number) => {
+        const i = nearestToY(clientY);
+        figs[i].scrollIntoView({ behavior: 'auto', block: 'center' });
+        setActive(i);
+      };
+
+      knob.addEventListener('pointerdown', (e) => {
+        dragging = true;
+        knob.setPointerCapture?.(e.pointerId);
+        jump(e.clientY);
+        e.preventDefault();
+      });
+      track.addEventListener('pointerdown', (e) => {
+        if (e.target === knob) return;
+        dragging = true;
+        jump(e.clientY);
+        e.preventDefault();
+      });
+      window.addEventListener('pointermove', (e) => {
+        if (dragging) jump(e.clientY);
+      });
+      window.addEventListener('pointerup', () => {
+        dragging = false;
+      });
+      window.addEventListener('pointercancel', () => {
+        dragging = false;
+      });
     }
   </script>
 </Base>

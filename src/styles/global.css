@@ -454,3 +454,83 @@ footer a{ color:var(--bronze); text-decoration:none; border-bottom:1px solid cur
   .nav a{ font-size:12px; letter-spacing:.1em; }
   .brand{ font-size:13px; letter-spacing:.18em; }
 }
+/* ---------- 右侧时间轴：液态玻璃 ---------- */
+.timeline{
+  position:fixed;
+  right:max(16px, env(safe-area-inset-right, 16px));
+  top:50%;
+  transform:translateY(-50%);
+  z-index:55;
+  height:min(56vh, 440px);
+  display:flex;
+  align-items:center;
+}
+.tl-track{
+  position:relative;
+  width:32px;
+  height:100%;
+  border-radius:999px;
+  background:rgba(255,255,255,.30);
+  border:1px solid rgba(255,255,255,.5);
+  -webkit-backdrop-filter:blur(16px) saturate(180%);
+  backdrop-filter:blur(16px) saturate(180%);
+  box-shadow:0 10px 30px rgba(20,18,15,.15), inset 0 1px 0 rgba(255,255,255,.55);
+  cursor:pointer;
+  touch-action:none;
+}
+.tl-track::before{
+  content:"";
+  position:absolute;
+  left:50%; top:16px; bottom:16px;
+  width:1px;
+  transform:translateX(-50%);
+  background:rgba(40,36,30,.18);
+}
+.tl-ticks{ position:absolute; inset:0; }
+.tl-tick{
+  position:absolute;
+  left:50%;
+  width:8px; height:1.5px;
+  transform:translate(-50%,-50%);
+  background:rgba(40,36,30,.40);
+  border-radius:2px;
+  transition:background .2s ease, width .2s ease;
+}
+.tl-tick:hover{ background:var(--bronze); width:13px; }
+.tl-knob{
+  position:absolute;
+  left:50%; top:0;
+  transform:translate(-50%,-50%);
+  width:18px; height:18px;
+  padding:0;
+  border-radius:50%;
+  border:1px solid rgba(0,0,0,.12);
+  background:#fff;
+  box-shadow:0 2px 8px rgba(0,0,0,.22);
+  cursor:grab;
+  touch-action:none;
+  transition:top .18s ease;
+}
+.tl-knob:active{ cursor:grabbing; }
+.tl-date{
+  position:absolute;
+  right:calc(100% + 12px);
+  top:50%;
+  transform:translateY(-50%);
+  white-space:nowrap;
+  font-size:10px;
+  letter-spacing:.14em;
+  color:#2c2822;
+  padding:5px 10px;
+  border-radius:999px;
+  background:rgba(255,255,255,.5);
+  border:1px solid rgba(255,255,255,.62);
+  -webkit-backdrop-filter:blur(14px) saturate(180%);
+  backdrop-filter:blur(14px) saturate(180%);
+  opacity:0;
+  transition:opacity .2s ease;
+  pointer-events:none;
+}
+.timeline:hover .tl-date,
+.tl-knob:focus-visible .tl-date{ opacity:1; }
+@media (max-width:900px){ .timeline{ display:none; } }
