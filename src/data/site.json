@@ -65,7 +65,10 @@
   },
   "music": {
     "enabled": true,
-    "src": "/music/bgm.wav",
-    "title": "红尘客栈"
+    "title": "红尘客栈",
+    "src": "",
+    "embed": "https://i.y.qq.com/n2/m/outchain/player/index.html?songid=5177680&songtype=0",
+    "link": "https://y.qq.com/n/ryqq/songDetail/5177680",
+    "linkLabel": "在 QQ 音乐打开"
   }
 }
