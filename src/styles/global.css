@@ -528,10 +528,7 @@ footer a{ color:var(--bronze); text-decoration:none; border-bottom:1px solid cur
   border:1px solid rgba(255,255,255,.62);
   -webkit-backdrop-filter:blur(14px) saturate(180%);
   backdrop-filter:blur(14px) saturate(180%);
-  opacity:0;
-  transition:opacity .2s ease;
+  opacity:1;
   pointer-events:none;
 }
-.timeline:hover .tl-date,
-.tl-knob:focus-visible .tl-date{ opacity:1; }
 @media (max-width:900px){ .timeline{ display:none; } }
