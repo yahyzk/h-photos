@@ -60,8 +60,9 @@ import site from '../data/site.json';
           <figure class="shot reveal" data-date={photo.date} id={`photo-${i}`}>
             <img
               src={photo.src}
-              alt={photo.caption}
+              alt={photo.caption || photo.date}
               data-caption={photo.caption}
+              data-date={photo.date}
               loading="lazy"
               onerror="this.remove()"
             />
@@ -167,7 +168,11 @@ import site from '../data/site.json';
     };
 
     document.querySelectorAll<HTMLImageElement>('.grid img').forEach((img) => {
-      img.addEventListener('click', () => open(img.src, img.dataset.caption || ''));
+      img.addEventListener('click', () => {
+        const cap = img.dataset.caption || '';
+        const date = (img.dataset.date || '').replace(/-/g, '.');
+        open(img.src, [cap, date].filter(Boolean).join('　·　'));
+      });
     });
 
     lbClose.addEventListener('click', close);
